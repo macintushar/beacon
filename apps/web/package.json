@@ -9,11 +9,9 @@
     "test": "vitest run",
     "lint": "eslint",
     "format": "prettier",
-    "check": "prettier --write . && eslint --fix",
-    "deploy": "wrangler deploy"
+    "check": "prettier --write . && eslint --fix"
   },
   "dependencies": {
-    "@cloudflare/vite-plugin": "^1.13.8",
     "@faker-js/faker": "^10.0.0",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-select": "^2.2.6",
@@ -54,7 +52,6 @@
     "typescript": "^5.7.2",
     "vite": "^7.1.7",
     "vitest": "^3.0.5",
-    "web-vitals": "^5.1.0",
-    "wrangler": "^4.40.3"
+    "web-vitals": "^5.1.0"
   }
 }
