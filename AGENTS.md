@@ -1,22 +1,22 @@
 # AGENTS.md
 
-1. Tooling (expected): Turborepo + Bun (API: Hono), Web: Vite + TanStack Router, DB: Drizzle (Postgres), Auth: Better Auth, Tests: Vitest.
-2. Install: `bun install` (root). Generate Drizzle SQL: `bun drizzle:generate`; run migrations: `bun drizzle:migrate`.
-3. Common scripts (add when package.json exists): `dev` (concurrent web+api), `build` (turbo run build), `lint` (biome or eslint), `test` (vitest run), `typecheck` (tsc --noEmit).
-4. Single test file: `bun vitest run path/to/file.test.ts`; single test name: `bun vitest run -t "name substring"`.
-5. Lint: prefer Biome (fast) or ESLint+@typescript-eslint; fix: `bun lint --fix`.
-6. Formatting: Prettier/Biome defaults; 2-space indent; semicolons on; single quotes; import order: (node builtin) -> third-party -> internal alias (@core/*) -> relative.
-7. TypeScript: strict true; no implicit any; use `unknown` over `any`; narrow early; prefer `type` aliases for shapes, `interface` only for object extension.
-8. Naming: files kebab-case (web) or snake_case for SQL; React components PascalCase; constants SCREAMING_SNAKE_CASE; migrations timestamp-name.ts.
-9. Imports: absolute via configured path aliases (e.g. @api/, @web/, @db/). No deep relative chains (../../..). Re-export barrel only when it reduces churn.
-10. Errors: never throw raw strings; create domain Error subclasses (e.g. InviteLimitError) or use `new Error(message,{cause})`; log unexpected with Sentry capture.
-11. API handlers: validate input (zod) at edge; return typed objects; never leak stack traces; map domain errors to 4xx codes; default 500 fallback JSON { error: "internal_error" }.
-12. DB: drizzle schema central; no inline SQL in handlers; soft-delete respected in queries; always scope workspace resources by workspace_id + membership check.
-13. Realtime: emit events after successful commit; never before transaction finishes.
-14. Security: enforce auth + workspace membership; strip EXIF on image upload; size/type guard before upload; rate limit mutation endpoints (Redis key pattern user:{id}:{action}).
-15. Testing: fast unit (pure functions), integration (API + ephemeral DB), e2e (playwright later). Mark slow tests with .slow. Keep unit tests deterministic (no real time.sleep).
-16. Single test debugging: `bun vitest --ui` optionally; watch mode: `bun vitest`.
-17. Commits: conventional style (feat:, fix:, chore:, refactor:, docs:, test:); focus on intent (why). No secrets (.env *.local) committed.
-18. Env vars (placeholders): DATABASE_URL, REDIS_URL, SENTRY_DSN, SMTP_HOST/PORT/USER/PASS, AUTH_GOOGLE_CLIENT_ID/SECRET, AUTH_MICROSOFT_CLIENT_ID/SECRET, LICENSE_KEY_FLAG.
-19. File layout (target): apps/api, apps/web, packages/db (drizzle), packages/auth, packages/ui, infra/ (deployment). Add a root turbo.json when scaffolding.
-20. Agents: keep edits minimal & atomic; if script absent, add with placeholder and comment; prefer creating missing config over guessing hidden behavior.
+1. Monorepo: Turborepo + Bun workspaces (apps/_, packages/_); Node >= 18.
+2. Install deps: run `bun install` at repo root (packageManager is bun).
+3. Dev: web `bun -C apps/web run dev` (Vite: http://localhost:3000); api `bun -C apps/server run dev` (Wrangler).
+4. Build: root `bun run build` (turbo); per-app: `bun -C apps/web run build`.
+5. Deploy (server): `bun -C apps/server run deploy`; typegen: `bun -C apps/server run cf-typegen`.
+6. Lint: root `bun run lint` (turbo -> per package). Example: `bun -C packages/ui run lint`.
+7. Types: root `bun run check-types` (turbo cascades); UI package uses `tsc --noEmit`.
+8. Tests (web): `bun -C apps/web run test`; single file: `bun -C apps/web vitest run path/to.test.ts`.
+9. Single test name: `bun -C apps/web vitest run -t "name substring"`; UI: no tests yet.
+10. Format: root `bun run format`; web quick fix `bun -C apps/web run check` (prettier+eslint --fix).
+11. API: Cloudflare Workers using Hono (`apps/server/src/index.ts`); config `apps/server/wrangler.jsonc`.
+12. Web: Vite + React 19 + TanStack Router/Query/Form/Table; Tailwind v4 plugin; env helper `apps/web/src/env.ts`.
+13. TypeScript: strict true; bundler resolution; web alias `@/*` -> `src/*`; server JSX via `hono/jsx`.
+14. Imports: prefer absolute `@/*` (web); avoid deep `../../..`; order: node -> third-party -> internal -> relative.
+15. Formatting: Prettier (semi: false, singleQuote: true, trailingComma: all); 2-space indent.
+16. Naming: React components PascalCase; files kebab-case (web); constants SCREAMING_SNAKE_CASE.
+17. Types: avoid `any`; prefer `unknown` then narrow; use `type` for shapes, `interface` for extension.
+18. Errors: throw `Error`/custom classes; never raw strings; surface safe API messages only.
+19. Cursor rules: see `apps/web/.cursorrules` (shadcn usage via `pnpx shadcn@latest add <component>`).
+20. Commits: Conventional (`feat:`, `fix:`, etc.); no secrets; keep changes minimal and atomic.
