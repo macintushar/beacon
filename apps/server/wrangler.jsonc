@@ -1,8 +1,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "server",
+  "name": "beacon-server",
   "main": "src/index.ts",
-  "compatibility_date": "2025-10-10"
+  "compatibility_date": "2025-10-10",
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
